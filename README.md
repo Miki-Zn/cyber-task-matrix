@@ -1,4 +1,11 @@
-# Python Task Manager 2030
+# 📟 CyberTask: Matrix-Style System Interface
+
+![React](https://img.shields.io/badge/React-18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.0-000000?style=for-the-badge&logo=flask&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5.0-B73BFE?style=for-the-badge&logo=vite&logoColor=white)
+
 
 A futuristic web application for managing Python script execution with isolated virtual environments.
 
@@ -114,3 +121,22 @@ The frontend will run on the port specified by Vite (usually `http://localhost:5
 - Virtual environments are stored in `backend/python_tasks/<task_id>/venv`
 - Logs are stored in Supabase and streamed in real-time
 - The application uses HTTP polling for log updates (1.5 second intervals)
+
+## 📂 System Architecture
+
+The project follows a decoupled architecture separating the UI logic from the backend API.
+
+```text
+cyber-task-matrix/
+├── 🐍 backend/              # Flask REST API
+│   ├── instance/            # SQLite Database Storage
+│   ├── app.py               # Application Entry Point & Routes
+│   └── requirements.txt     # Python Dependencies
+├── ⚛️ src/                  # React Frontend
+│   ├── components/          # Cyberpunk UI Components
+│   │   ├── Terminal.tsx     # Command Line Interface
+│   │   ├── MatrixBackground # Rain Animation Logic
+│   │   └── FileEditorModal  # Virtual File System
+│   ├── services/            # API Integration (Axios)
+│   └── types/               # TypeScript Interfaces
+└── 📄 README.md             # Documentation
