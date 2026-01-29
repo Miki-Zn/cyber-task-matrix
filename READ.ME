@@ -1,0 +1,126 @@
+🚀 Гайд по деплою (Flask + React) на чистый Linux
+1. Подготовка сервера (Фундамент)
+Никогда не работайте под root для запуска приложений.
+
+Создайте пользователя:
+
+Bash
+
+adduser myappuser
+usermod -aG sudo myappuser
+Установите системный софт:
+
+Bash
+
+apt update
+apt install python3 python3-venv python3-pip nodejs npm nginx git -y
+2. Загрузка и Права (Самая частая ошибка)
+Создайте папку проекта: Обычно это /var/www/my-project.
+
+Bash
+
+mkdir -p /var/www/my-project
+Загрузите файлы: Используйте scp или FileZilla/Cyberduck.
+
+ИСПРАВЬТЕ ПРАВА (Критично!): Сразу после загрузки отдайте папку вашему пользователю.
+
+Bash
+
+chown -R myappuser:myappuser /var/www/my-project
+chmod -R 755 /var/www/my-project
+3. Настройка Бэкенда (Python)
+Виртуальное окружение: Всегда изолируйте библиотеки.
+
+Bash
+
+cd /var/www/my-project/backend
+python3 -m venv venv
+source venv/bin/activate
+Установка библиотек:
+
+Bash
+
+pip install -r requirements.txt
+pip install gunicorn  # Обязательно для продакшена
+Тестовый запуск (Проверка базы): Запустите один раз вручную, чтобы создалась база данных project.db и вы увидели ошибки сразу.
+
+Bash
+
+python app.py
+# Если всё ок — нажмите Ctrl+C
+Проверка прав на базу: Убедитесь, что созданный файл project.db принадлежит myappuser, а не root.
+
+4. Настройка Фронтенда (React)
+Сборка:
+
+Bash
+
+cd /var/www/my-project
+npm install
+npm run build
+Результат: У вас должна появиться папка dist (или build). Это и есть ваш готовый сайт.
+
+5. Создание демона (Systemd)
+Чтобы сайт работал фоном и сам перезапускался.
+
+Файл: /etc/systemd/system/myapp.service
+
+Шаблон:
+
+Ini, TOML
+
+[Unit]
+Description=My Python App
+After=network.target
+
+[Service]
+User=myappuser
+Group=myappuser
+WorkingDirectory=/var/www/my-project/backend
+# Запуск через Gunicorn (стандарт)
+ExecStart=/var/www/my-project/backend/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:5000 app:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+Запуск:
+
+Bash
+
+systemctl daemon-reload
+systemctl enable myapp.service
+systemctl start myapp.service
+6. Веб-сервер (Nginx) — "Связной"
+Если вы не используете CyberPanel, стандартом является Nginx. Он намного проще в настройке прокси, чем OpenLiteSpeed.
+
+Файл: /etc/nginx/sites-available/myapp
+
+Конфиг (Шаблон):
+
+Nginx
+
+server {
+    listen 80;
+    server_name ваш-домен.com;  # Или IP сервера
+
+    # 1. Отдача Фронтенда (React)
+    location / {
+        root /var/www/my-project/dist;  # Путь к папке dist
+        index index.html;
+        try_files $uri $uri/ /index.html;  # Магия для React Router
+    }
+
+    # 2. Прокси на Бэкенд (Python)
+    location /api {
+        proxy_pass http://127.0.0.1:5000;  # Порт Gunicorn
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+Активация:
+
+Bash
+
+ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/
+nginx -t  # Проверка ошибок
+systemctl restart nginx

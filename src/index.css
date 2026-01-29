@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --matrix-green: #00ff41;
+    --matrix-green-dark: #008f11;
+  }
+  body {
+    @apply bg-black text-white;
+  }
+}
+
+@layer utilities {
+  /* Scanline effect */
+  .scanline-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.2) 50%,
+      rgba(0, 0, 0, 0) 100%
+    );
+    background-size: 100% 4px;
+    animation: scan 10s linear infinite;
+  }
+  @keyframes scan {
+    from { background-position: 0 0; }
+    to { background-position: 0 100vh; }
+  }
+
+  /* Glitch Text Effect */
+  .glitch {
+    position: relative;
+    color: var(--matrix-green);
+    font-family: 'Courier New', Courier, monospace;
+    text-shadow: 0 0 5px var(--matrix-green);
+  }
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    overflow: hidden;
+  }
+  .glitch::before {
+    left: 2px;
+    text-shadow: -1px 0 red;
+    animation: glitch-anim-1 2s infinite linear alternate-reverse;
+  }
+  .glitch::after {
+    left: -2px;
+    text-shadow: -1px 0 blue;
+    animation: glitch-anim-2 2s infinite linear alternate-reverse;
+  }
+  @keyframes glitch-anim-1 {
+    0% { clip: rect(42px, 9999px, 44px, 0); }
+    20% { clip: rect(12px, 9999px, 60px, 0); }
+    40% { clip: rect(40px, 9999px, 66px, 0); }
+    60% { clip: rect(27px, 9999px, 80px, 0); }
+    80% { clip: rect(15px, 9999px, 90px, 0); }
+    100% { clip: rect(50px, 9999px, 85px, 0); }
+  }
+  @keyframes glitch-anim-2 {
+    0% { clip: rect(25px, 9999px, 90px, 0); }
+    20% { clip: rect(3px, 9999px, 92px, 0); }
+    40% { clip: rect(78px, 9999px, 100px, 0); }
+    60% { clip: rect(52px, 9999px, 20px, 0); }
+    80% { clip: rect(20px, 9999px, 55px, 0); }
+    100% { clip: rect(13px, 9999px, 40px, 0); }
+  }
+}
